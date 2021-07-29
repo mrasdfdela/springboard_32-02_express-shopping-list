@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const app = express();
 app.use(express.json());
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 
 app.get('/',function(req, res, next){
   return res.send("<h1>Welcome to ShopRite of Jerryville!</h1>");
@@ -40,10 +40,11 @@ app.post("/items", function (req, res, next) {
 
 app.get("/items/:name", function (req, res, next) {
   try {
-    if (!items.filter((el) => el.name === req.params.name)) {
+    filteredItems = items.filter((el) => el.name === req.params.name)
+    if (filteredItems.length === 0) {
       throw new ExpressError("Unable to read data", 400);
     } else {
-      item = items.filter((el) => el.name === req.params.name);
+      item = filteredItems;
       return res.json(item);
     }
   } catch (e) {
@@ -53,12 +54,17 @@ app.get("/items/:name", function (req, res, next) {
 
 app.patch("/items/:name", function (req, res, next) {
   try {
-    if (!items.filter((el) => el.name === req.params.name)) {
+    filteredItems = items.filter((el) => el.name === req.params.name);
+    if (filteredItems.length === 0) {
       throw new ExpressError("Unable to read data", 400);
     } else {
       item = items.filter((el) => el.name === req.params.name);
-      if (req.body.name) { item[0].name = req.body.name }
-      if (req.body.price){ item[0].price = req.body.price }
+      if (req.body.name) {
+        item[0].name = req.body.name;
+      }
+      if (req.body.price) {
+        item[0].price = req.body.price;
+      }
       return res.json({ updated: item });
     }
   } catch (e) {
@@ -67,8 +73,10 @@ app.patch("/items/:name", function (req, res, next) {
 });
 
 app.delete("/items/:name", function (req, res, next) {
+  item = items.filter((el) => el.name === req.params.name);
+
   try {
-    if (!items.filter((el) => el.name === req.params.name)) {
+    if (item.length === 0) {
       throw new ExpressError("Unable to read data", 400);
     } else {
       items.forEach( (item,idx)=>{

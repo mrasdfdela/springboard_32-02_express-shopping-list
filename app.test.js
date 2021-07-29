@@ -40,8 +40,61 @@ describe("POST /items", ()=> {
     const res = await request(app).post("/items");
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toEqual({
-      "msg": "No data sent",
-      "status": 400,
+      msg: expect.any(String),
+      status: 400,
+    });
+  });
+});
+
+describe("GET /items/:name", ()=> {
+  test("get an existing item", async ()=> {
+    item = "popsicle";
+    itemsArr = [{name:item, price:expect.any(Number)}]
+    const res = await request(app).get(`/items/${item}`)
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual(itemsArr);
+  });
+  test("get nonexistant item", async () => {
+    const res = await request(app).get(`/items/nonexistant`);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toEqual({
+      msg: expect.any(String),
+      status: 400,
+    });
+  });
+});
+
+describe("PATCH /items/:name", ()=> {
+  test("updating an existing item", async ()=> {
+    item = "popsicle";
+    itemsArr = {name:item, price:1.15}
+    const res = await request(app).patch(`/items/${item}`).send(itemsArr);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.updated[0]).toEqual(itemsArr);
+  });
+  test("patch nonexistant item", async () => {
+    const res = await request(app).patch(`/items/nonexistant`);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toEqual({
+      msg: expect.any(String),
+      status: 400,
+    });
+  });
+});
+
+describe("DELETE /items/:name", ()=> {
+  test("delete existing item", async ()=> {
+    item = "popsicle";
+    const res = await request(app).delete(`/items/${item}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({"message":"deleted"});
+  });
+  test("delete nonexistant item", async () => {
+    const res = await request(app).delete(`/items/nonexistant`);
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toEqual({
+      msg: expect.any(String),
+      status: 400,
     });
   });
 });
